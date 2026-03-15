@@ -69,11 +69,29 @@ Return ONLY valid JSON, no extra text.
 
     const aiMessage = aiResponse.data.choices[0].message.content;
 
+    // 有些模型會用 ```json ... ``` 包住輸出，需要先清理
+    let jsonText = aiMessage.trim();
+    if (jsonText.startsWith('```')) {
+      // 去除開頭和結尾的 ``` 或 ```json
+      jsonText = jsonText
+        .replace(/^```json/i, '')
+        .replace(/^```/, '')
+        .replace(/```$/,'')
+        .trim();
+    }
+    // 再保險啲：只取第一個 { 到最後一個 } 之間嘅內容
+    const firstBrace = jsonText.indexOf('{');
+    const lastBrace = jsonText.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      jsonText = jsonText.slice(firstBrace, lastBrace + 1);
+    }
+
     let parsed;
     try {
-      parsed = JSON.parse(aiMessage);
+      parsed = JSON.parse(jsonText);
     } catch (e) {
       console.error('Failed to parse AI JSON:', e);
+      console.error('Raw content from model:', aiMessage);
       return res.status(500).json({ error: 'Failed to parse AI JSON' });
     }
 
