@@ -49,9 +49,9 @@ Return ONLY valid JSON, no extra text.
 `;
 
     const aiResponse = await axios.post(
-      'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+      'https://api.vectorengine.ai/v1/chat/completions',
       {
-        model: 'gemini-2.5-flash-thinking', // 依你截圖嘅模型名
+        model: 'gemini-2.5-flash-thinking',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: essayText },
@@ -61,7 +61,8 @@ Return ONLY valid JSON, no extra text.
       {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${VECTOR_API_KEY}`,
+          // VectorEngine 的 Authorization 直接用 key，不加 Bearer
+          Authorization: VECTOR_API_KEY,
         },
       }
     );
